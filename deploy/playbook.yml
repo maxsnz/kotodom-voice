@@ -1,0 +1,42 @@
+- hosts: server
+  become: true
+
+  vars_files:
+    - ../../infra/group_vars/all/vault.yml
+    - group_vars/all/vault.yml
+    - group_vars/all.yml
+
+  vars:
+    app_name: "kotodom-voice"
+
+    # ---------- Paths ----------
+    project_dir: "/var/www/kotodom-voice"
+    compose_path: "{{ project_dir }}/docker-compose.yml"
+
+    # ---------- Docker App ----------
+    docker_app_project_dir: "{{ project_dir }}"
+    docker_app_compose_path: "{{ compose_path }}"
+    docker_app_git_repo: "git@github.com:maxsnz/kotodom-voice.git"
+    docker_app_git_version: "master"
+    docker_app_env_vars: "{{ env_vars }}"
+
+    # ---------- Env vars for .env ----------
+    env_vars:
+      NODE_ENV: "production"
+      TELEGRAM_BOT_TOKEN: "{{ TELEGRAM_BOT_TOKEN }}"
+      AWS_KEY: "{{ AWS_KEY }}"
+      AWS_SECRET: "{{ AWS_SECRET }}"
+      AWS_LANGUAGE_CODE: "{{ AWS_LANGUAGE_CODE | default('ru-RU') }}"
+      AWS_VOICE_ID: "{{ AWS_VOICE_ID | default('Maxim') }}"
+      LOGTAIL_TOKEN: "{{ LOGTAIL_TOKEN }}"
+      LOGTAIL_SOURCE: "{{ LOGTAIL_SOURCE }}"
+
+    # ---------- Vector Logging ----------
+    vector_source_name: "kotodom_voice"
+    vector_log_path: "/var/lib/docker/containers/*/*-json.log"
+
+  roles:
+    - { role: docker_app_setup, tags: ["setup"] }
+    - { role: docker_app, tags: ["app"] }
+    - { role: vector_source, tags: ["logs"] }
+

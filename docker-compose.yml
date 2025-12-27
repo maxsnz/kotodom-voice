@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: voice
+    container_name: voice
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      AWS_KEY: ${AWS_KEY}
+      AWS_SECRET: ${AWS_SECRET}
+      AWS_LANGUAGE_CODE: ${AWS_LANGUAGE_CODE}
+      AWS_VOICE_ID: ${AWS_VOICE_ID}
+      LOGTAIL_TOKEN: ${LOGTAIL_TOKEN}
+      LOGTAIL_SOURCE: ${LOGTAIL_SOURCE}
+      NODE_ENV: production
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep 'node' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
