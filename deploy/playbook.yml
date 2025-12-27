@@ -12,14 +12,7 @@
     # ---------- Paths ----------
     project_dir: "/var/www/kotodom-voice"
     compose_path: "{{ project_dir }}/docker-compose.yml"
-
-    # ---------- Docker App ----------
-    docker_app_project_dir: "{{ project_dir }}"
-    docker_app_compose_path: "{{ compose_path }}"
-    docker_app_git_repo: "git@github.com:maxsnz/kotodom-voice.git"
-    docker_app_git_version: "master"
-    docker_app_env_vars: "{{ env_vars }}"
-    docker_app_enable_zero_downtime: false
+    env_file_path: "{{ project_dir }}/.env"
 
     # ---------- Env vars for .env ----------
     env_vars:
@@ -32,12 +25,25 @@
       LOGTAIL_TOKEN: "{{ LOGTAIL_TOKEN }}"
       LOGTAIL_SOURCE: "{{ LOGTAIL_SOURCE }}"
 
+    # ---------- Docker App ----------
+    docker_app_project_dir: "{{ project_dir }}"
+    docker_app_compose_path: "{{ compose_path }}"
+    docker_app_git_repo: "git@github.com:maxsnz/kotodom-voice.git"
+    docker_app_git_version: "master"
+    docker_app_enable_zero_downtime: false
+
     # ---------- Vector Logging ----------
     vector_source_name: "kotodom_voice"
     vector_log_path: "/var/lib/docker/containers/*/*-json.log"
 
+  tasks:
+    - name: Debug - Show env_vars to check if vault variables are resolved
+      debug:
+        var: env_vars
+      no_log: false
+
   roles:
     - { role: docker_app_setup, tags: ["setup"] }
-    - { role: env_file, tags: ["setup"] }
+    - { role: postgres_db, tags: ["db"] }
     - { role: docker_app, tags: ["app"] }
     - { role: vector_source, tags: ["logs"] }
