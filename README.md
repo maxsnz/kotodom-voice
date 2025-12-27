@@ -10,7 +10,7 @@ A Telegram bot that listens to text messages, transcribes the text to speech usi
 
 env vars description:
 
-`TELEGRAM_BOT_TOKEN` - tg token
+`TELEGRAM_TOKEN` - tg token
 
 `AWS_KEY` - aws key
 
@@ -22,8 +22,8 @@ env vars description:
 
 #### 2. Install dependencies:
 
-`yarn install`
+`npm i`
 
 #### 3. Start bot:
 
-`yarn start`
+`npm start`

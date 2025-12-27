@@ -19,15 +19,16 @@
     docker_app_git_repo: "git@github.com:maxsnz/kotodom-voice.git"
     docker_app_git_version: "master"
     docker_app_env_vars: "{{ env_vars }}"
+    docker_app_enable_zero_downtime: false
 
     # ---------- Env vars for .env ----------
     env_vars:
       NODE_ENV: "production"
-      TELEGRAM_BOT_TOKEN: "{{ TELEGRAM_BOT_TOKEN }}"
+      TELEGRAM_TOKEN: "{{ TELEGRAM_TOKEN }}"
       AWS_KEY: "{{ AWS_KEY }}"
       AWS_SECRET: "{{ AWS_SECRET }}"
-      AWS_LANGUAGE_CODE: "{{ AWS_LANGUAGE_CODE | default('ru-RU') }}"
-      AWS_VOICE_ID: "{{ AWS_VOICE_ID | default('Maxim') }}"
+      AWS_LANGUAGE_CODE: "{{ AWS_LANGUAGE_CODE }}"
+      AWS_VOICE_ID: "{{ AWS_VOICE_ID }}"
       LOGTAIL_TOKEN: "{{ LOGTAIL_TOKEN }}"
       LOGTAIL_SOURCE: "{{ LOGTAIL_SOURCE }}"
 
@@ -37,6 +38,6 @@
 
   roles:
     - { role: docker_app_setup, tags: ["setup"] }
+    - { role: env_file, tags: ["setup"] }
     - { role: docker_app, tags: ["app"] }
     - { role: vector_source, tags: ["logs"] }
-

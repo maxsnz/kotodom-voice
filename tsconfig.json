@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+
+    "target": "ESNext",
+    "module": "CommonJS",
+
+    "moduleResolution": "node",
+
+    "strict": true,
+
+    "sourceMap": true,
+    "resolveJsonModule": true,
+
+    "useDefineForClassFields": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": true,
+
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}

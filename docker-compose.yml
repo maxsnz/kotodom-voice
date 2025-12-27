@@ -10,7 +10,7 @@ services:
     network_mode: host
     restart: unless-stopped
     environment:
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
       AWS_KEY: ${AWS_KEY}
       AWS_SECRET: ${AWS_SECRET}
       AWS_LANGUAGE_CODE: ${AWS_LANGUAGE_CODE}
@@ -29,4 +29,3 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-

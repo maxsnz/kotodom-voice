@@ -1,13 +1,9 @@
-const { Telegraf } = require("telegraf");
-const speech = require("./speech");
+import { Telegraf } from "telegraf";
+import speech from "./speech";
 
-require("dotenv").config();
+import { env } from "./config";
 
-if (!process.env.TELEGRAM_BOT_TOKEN) {
-  throw Error("no process.env.TELEGRAM_BOT_TOKEN found");
-}
-
-const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
+const bot = new Telegraf(env.TELEGRAM_TOKEN);
 
 console.log("bot started");
 
@@ -18,13 +14,19 @@ bot.hears("hi", (ctx) => ctx.reply("Hey there"));
 
 bot.on("text", async (ctx) => {
   try {
+    await ctx.sendChatAction("typing");
     console.log(`message: ${ctx.message.text}`);
 
     if (ctx.message.text?.length > 5) {
       const text = ctx.message.text;
       const audioStream = await speech(text);
 
+      if (!audioStream) {
+        throw new Error("Failed to generate audio stream");
+      }
+
       const response = await ctx.replyWithVoice({
+        // @ts-expect-error - TODO: fix this
         source: audioStream,
       });
     } else {
@@ -35,12 +37,10 @@ bot.on("text", async (ctx) => {
   }
 });
 
-const runBot = () => {
+export const runBot = () => {
   bot.launch();
+
+  // Enable graceful stop
+  process.once("SIGINT", () => bot.stop("SIGINT"));
+  process.once("SIGTERM", () => bot.stop("SIGTERM"));
 };
-
-// Enable graceful stop
-process.once("SIGINT", () => bot.stop("SIGINT"));
-process.once("SIGTERM", () => bot.stop("SIGTERM"));
-
-module.exports = runBot;
