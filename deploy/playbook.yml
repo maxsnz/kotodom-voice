@@ -7,7 +7,7 @@
     - group_vars/all.yml
 
   vars:
-    app_name: "kotodom-voice"
+    app_name: "voice"
 
     # ---------- Paths ----------
     project_dir: "/var/www/voice"
@@ -37,6 +37,7 @@
     vector_log_path: "/var/lib/docker/containers/*/*-json.log"
 
   roles:
+    - { role: env_file, tags: ["env"] }
     - { role: docker_app_setup, tags: ["setup"] }
     - { role: docker_app, tags: ["app"] }
     - { role: vector_source, tags: ["logs"] }
