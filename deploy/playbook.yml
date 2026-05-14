@@ -14,9 +14,24 @@
     compose_path: "{{ project_dir }}/docker-compose.yml"
     env_file_path: "{{ project_dir }}/.env"
 
+    # ---------- Docker App ----------
+    docker_app_project_dir: "{{ project_dir }}"
+    docker_app_compose_path: "{{ compose_path }}"
+    # Per-project Host alias from github_deploy_key role: git auth идёт
+    # через /root/.ssh/id_ed25519_voice, без agent forwarding.
+    docker_app_git_repo: "git@github-voice:maxsnz/kotodom-voice.git"
+    docker_app_git_version: "master"
+    # network_mode: host — два контейнера не могут одновременно держать
+    # одни и те же сокеты, поэтому zero-downtime отключаем.
+    docker_app_enable_zero_downtime: false
+    # Не чистим docker image / builder cache на каждом деплое —
+    # делает отдельный maintenance-таймер (см. infra/BACKLOG.md).
+    docker_app_skip_cleanup: true
+
     # ---------- Env vars for .env ----------
+    # Keys mirror .env.example. Секреты из vault, не-секреты из group_vars.
     env_vars:
-      NODE_ENV: "production"
+      NODE_ENV: "{{ NODE_ENV | default('production') }}"
       TELEGRAM_TOKEN: "{{ TELEGRAM_TOKEN }}"
       AWS_KEY: "{{ AWS_KEY }}"
       AWS_SECRET: "{{ AWS_SECRET }}"
@@ -25,19 +40,42 @@
       LOGTAIL_TOKEN: "{{ LOGTAIL_TOKEN | default('') }}"
       LOGTAIL_SOURCE: "{{ LOGTAIL_SOURCE | default('') }}"
 
-    # ---------- Docker App ----------
-    docker_app_project_dir: "{{ project_dir }}"
-    docker_app_compose_path: "{{ compose_path }}"
-    docker_app_git_repo: "git@github.com:maxsnz/kotodom-voice.git"
-    docker_app_git_version: "master"
-    docker_app_enable_zero_downtime: false
-
     # ---------- Vector Logging ----------
     vector_source_name: "kotodom_voice"
     vector_log_path: "/var/lib/docker/containers/*/*-json.log"
 
-  roles:
-    - { role: env_file, tags: ["env"] }
-    - { role: docker_app_setup, tags: ["setup"] }
-    - { role: docker_app, tags: ["app"] }
-    - { role: vector_source, tags: ["logs"] }
+  tasks:
+    # Per-project deploy key. Запускается ВРУЧНУЮ один раз на новом сервере:
+    #   make github-key
+    # См. infra/README.md → "First-time deploy key setup". Не входит в
+    # setup/deploy (tag `never`), чтобы не печатать pubkey на каждом прогоне.
+    - name: Apply github_deploy_key role
+      import_role:
+        name: github_deploy_key
+      vars:
+        gh_deploy_key_name: "{{ app_name }}"
+      tags: ["github-key", "never"]
+
+    # Порядок важен: docker_app_setup должен клонировать репо ДО того,
+    # как env_file запишет .env. Иначе project_dir станет непустым (с .env)
+    # и не git-репо, и docker_app_setup откажется работать. Та же ловушка,
+    # которую мы уже ловили на sverka и tasker.
+    - name: Apply docker_app_setup role
+      import_role:
+        name: docker_app_setup
+      tags: ["setup"]
+
+    - name: Apply env_file role
+      import_role:
+        name: env_file
+      tags: ["env"]
+
+    - name: Apply docker_app role
+      import_role:
+        name: docker_app
+      tags: ["app"]
+
+    - name: Apply vector_source role
+      import_role:
+        name: vector_source
+      tags: ["logs"]
