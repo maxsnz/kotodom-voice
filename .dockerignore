@@ -1,0 +1,11 @@
+.git
+.gitignore
+.env
+.env.example
+node_modules/
+tmp/
+dist/
+coverage/
+*-debug.log*
+.DS_Store
+README.md

@@ -1,29 +1,41 @@
 # Kotodom Voice
 
-## What is it?
+Telegram-бот: принимает текст → синтезирует речь через Amazon Polly →
+шлёт обратно voice-сообщение.
 
-A Telegram bot that listens to text messages, transcribes the text to speech using Amazon Polly voice service, and sends the audio back.
+- **Стек:** Bun (runtime, исполняет TS нативно) + pnpm (install) +
+  telegraf + @aws-sdk/client-polly
+- **Тип:** worker, long-polling. Нет HTTP, не нужен публичный домен.
+- **Состояние:** stateless. Никаких volume / БД.
 
-## Usage
+## Local dev
 
-#### 1. Create _.env_ file using .env.example as a template
+```bash
+pnpm install
+cp .env.example .env   # заполнить TELEGRAM_TOKEN, AWS_KEY/SECRET, и т.д.
+pnpm dev               # bun --watch src/index.ts
+```
 
-env vars description:
+### Env переменные
 
-`TELEGRAM_TOKEN` - tg token
+См. `src/config.ts` — там единый source of truth с валидацией. Кратко:
 
-`AWS_KEY` - aws key
+- `TELEGRAM_TOKEN` — от @BotFather
+- `AWS_KEY`, `AWS_SECRET` — IAM credentials с правом `polly:SynthesizeSpeech`
+- `AWS_LANGUAGE_CODE` (default `ru-RU`)
+- `AWS_VOICE_ID` (default `Maxim`) — список доступных голосов:
+  <https://docs.aws.amazon.com/polly/latest/dg/available-voices.html>
+- `LOGTAIL_TOKEN`, `LOGTAIL_SOURCE` — optional, для Better Stack
+- `NODE_ENV` — `production` в проде
 
-`AWS_SECRET` - aws secret
+## Deploy
 
-`AWS_LANGUAGE_CODE` - language code, for example ru-RU
+Развёрнут на kotodom-сервере (Hetzner) через Ansible
+(`deploy/playbook.yml` + общий `kotodom/infra/`). Подробнее — см.
+`infra/README.md`.
 
-`AWS_VOICE_ID` - voice Id from here: https://docs.aws.amazon.com/polly/latest/dg/available-voices.html, for example Maxim
-
-#### 2. Install dependencies:
-
-`npm i`
-
-#### 3. Start bot:
-
-`npm start`
+```bash
+make github-key   # one-time: генерим deploy-key и кладём pubkey в GitHub
+make setup        # one-time bootstrap: клон, .env, Vector tail
+make deploy       # сборка образа + старт контейнера
+```

@@ -1,18 +1,22 @@
 {
   "name": "kotodom-voice",
-  "version": "2.0.0",
+  "private": true,
+  "version": "2.1.0",
   "license": "MIT",
   "author": "maxsnz",
+  "type": "module",
+  "packageManager": "pnpm@10.33.4",
   "scripts": {
-    "start": "tsx ./src/index.js"
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts"
   },
   "dependencies": {
     "@aws-sdk/client-polly": "^3.186.0",
+    "telegraf": "^4.10.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.13",
     "@types/node": "^25.0.3",
-    "aws-sdk": "^2.1231.0",
-    "dotenv": "^17.2.3",
-    "telegraf": "^4.10.0",
-    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }

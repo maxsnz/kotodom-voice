@@ -1,24 +1,22 @@
 {
   "compilerOptions": {
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "types": ["node"],
-
+    // Bun runs TypeScript natively; tsconfig here is purely для редактора и
+    // (опционально) `tsc --noEmit` type-check'а в CI. Bun сам не читает tsconfig
+    // для исполнения.
     "target": "ESNext",
-    "module": "CommonJS",
-
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["bun", "node"],
 
     "strict": true,
-
-    "sourceMap": true,
-    "resolveJsonModule": true,
-
-    "useDefineForClassFields": true,
     "noImplicitOverride": true,
     "exactOptionalPropertyTypes": true,
 
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "noEmit": true
   },
   "include": ["src"]
 }

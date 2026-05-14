@@ -7,25 +7,17 @@ services:
       dockerfile: Dockerfile
     image: voice
     container_name: voice
+    # network_mode: host — telegraf долбит api.telegram.org через
+    # long-polling, никаких портов не слушает. Хост-режим выбран для
+    # единообразия с другими ботами на этом сервере (tasker, reminder).
     network_mode: host
     restart: unless-stopped
-    environment:
-      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
-      AWS_KEY: ${AWS_KEY}
-      AWS_SECRET: ${AWS_SECRET}
-      AWS_LANGUAGE_CODE: ${AWS_LANGUAGE_CODE}
-      AWS_VOICE_ID: ${AWS_VOICE_ID}
-      LOGTAIL_TOKEN: ${LOGTAIL_TOKEN}
-      LOGTAIL_SOURCE: ${LOGTAIL_SOURCE}
-      NODE_ENV: production
+    env_file: .env
     healthcheck:
-      test: ["CMD-SHELL", "ps aux | grep 'tsx' || exit 1"]
+      test: ["CMD-SHELL", "pgrep -f 'bun.*src/index.ts' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    # Ротация логов настраивается глобально в /etc/docker/daemon.json
+    # (infra/roles/docker), per-service блок не нужен.

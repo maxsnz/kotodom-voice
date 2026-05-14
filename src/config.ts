@@ -1,6 +1,8 @@
-import * as dotenv from "dotenv";
-
-dotenv.config();
+// .env читается автоматически:
+//   - локально: bun --watch / bun run загружают .env из cwd
+//   - в контейнере: docker-compose env_file: .env пробрасывает значения
+//     в process.env ещё до старта процесса
+// dotenv больше не нужен.
 
 interface EnvironmentConfig {
   NODE_ENV: string;
