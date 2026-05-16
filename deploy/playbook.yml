@@ -37,12 +37,17 @@
       AWS_SECRET: "{{ AWS_SECRET }}"
       AWS_LANGUAGE_CODE: "{{ AWS_LANGUAGE_CODE | default('') }}"
       AWS_VOICE_ID: "{{ AWS_VOICE_ID | default('') }}"
-      LOGTAIL_TOKEN: "{{ LOGTAIL_TOKEN | default('') }}"
-      LOGTAIL_SOURCE: "{{ LOGTAIL_SOURCE | default('') }}"
 
     # ---------- Vector Logging ----------
+    # Per-app pipeline activates once bs_logs_token / bs_logs_host land
+    # in the project vault — until then the role renders a legacy
+    # file-source (no consumer, no-op). To enable: create a Vector
+    # source in Better Stack UI, paste both values into
+    # deploy/group_vars/all/vault.yml, re-run `make setup`.
     vector_source_name: "kotodom_voice"
-    vector_log_path: "/var/lib/docker/containers/*/*-json.log"
+    vector_source_container_name: "voice"
+    vector_source_bs_token: "{{ bs_logs_token | default('') }}"
+    vector_source_bs_host: "{{ bs_logs_host | default('') }}"
 
   tasks:
     # Per-project deploy key. Запускается ВРУЧНУЮ один раз на новом сервере:

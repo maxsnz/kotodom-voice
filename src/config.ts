@@ -7,8 +7,6 @@
 interface EnvironmentConfig {
   NODE_ENV: string;
   TELEGRAM_TOKEN: string;
-  LOGTAIL_TOKEN?: string;
-  LOGTAIL_SOURCE?: string;
   AWS_KEY: string;
   AWS_SECRET: string;
   AWS_LANGUAGE_CODE: string;
@@ -34,14 +32,6 @@ function validateEnv(): EnvironmentConfig {
     AWS_LANGUAGE_CODE: process.env.AWS_LANGUAGE_CODE || "ru-RU",
     AWS_VOICE_ID: process.env.AWS_VOICE_ID || "Maxim",
   };
-
-  if (process.env.LOGTAIL_TOKEN) {
-    config.LOGTAIL_TOKEN = process.env.LOGTAIL_TOKEN;
-  }
-
-  if (process.env.LOGTAIL_SOURCE) {
-    config.LOGTAIL_SOURCE = process.env.LOGTAIL_SOURCE;
-  }
 
   return config;
 }
