@@ -14,7 +14,13 @@ services:
     restart: unless-stopped
     env_file: .env
     healthcheck:
-      test: ["CMD-SHELL", "pgrep -f 'bun.*src/index.ts' || exit 1"]
+      # Проверяем свежесть liveness-heartbeat, который приложение обновляет
+      # каждые 15с (см. runBot в src/bot.ts), а не просто наличие bun-процесса:
+      # процесс может быть жив, а event loop — завис (telegraf+Bun роняет
+      # polling на сетевом сбое), и старый pgrep-чек этого не ловил. Если
+      # heartbeat не обновлялся >1 мин → unhealthy. find/-mmin есть в
+      # oven/bun:debian (procps/pgrep — не гарантирован).
+      test: ["CMD-SHELL", "test -n \"$(find /tmp/voice-heartbeat -mmin -1 2>/dev/null)\" || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

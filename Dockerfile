@@ -9,6 +9,10 @@ RUN bun install -g pnpm@10.33.4
 
 COPY package.json pnpm-lock.yaml ./
 
+# pnpm применяет patchedDependencies на install — без каталога patches/
+# `--frozen-lockfile` не найдёт telegraf@4.16.3.patch и упадёт.
+COPY patches ./patches
+
 RUN pnpm install --frozen-lockfile --prod
 
 COPY . .
